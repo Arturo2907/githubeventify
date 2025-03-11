@@ -1,0 +1,570 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venta de Boletos - Eventos Sociales</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('imagenes/fondo1.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            transition: background-image 1s ease-in-out;
+        }
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            position: relative;
+        }
+        header img {
+            width: 100%;
+            max-height: 280px;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .icon-login {
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+        }
+        #icon-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Estilos del Menú Desplegable */
+        .dropdown-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 200px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .dropdown-item {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-end;
+            z-index: 1001;
+        }
+        .menu-icon {
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            display: none; /* Ocultar en escritorio, mostrar en móvil */
+        }
+        .nav-menu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .nav-menu li {
+            margin-left: 20px;
+        }
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .nav-menu a:hover {
+            color: #007BFF;
+        }
+        @media (max-width: 768px) {
+            .menu-icon {
+                display: block;
+            }
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 50px;
+                right: 20px;
+                background-color: white;
+                flex-direction: column;
+                width: 150px;
+            }
+            .nav-menu.active {
+                display: flex;
+            }
+            .nav-menu li {
+                margin: 10px 0;
+            }
+        }
+
+        #eventos, #auth-section {
+            padding: 40px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .evento, .form-container {
+            display: inline-block;
+            width: 300px;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-color: white;
+            transition: transform 0.3s;
+        }
+        .evento:hover, .form-container:hover {
+            transform: translateY(-10px);
+        }
+        .evento-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .toggle-link {
+            color: #007BFF;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 10px;
+            display: block;
+        }
+        #modal-auth, #modal-seleccion, #modal-pago {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+        }
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .seat {
+            width: 50px;
+            height: 50px;
+            background-color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .seat.selected {
+            background-color: #007BFF;
+            color: white;
+        }
+        #modal-pago select, #modal-pago input {
+            width: 80%;
+            margin: 10px auto;
+        }
+        #modal-pago button {
+            background-color: #28a745;
+        }
+    </style>
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Venta de Boletos - Eventos Sociales</title>
+        <script src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+        <!-- Resto de tu CSS y otros scripts -->
+        <script>
+            let isAuthenticated = false;
+            let currentEventId = null;
+    
+            function mostrarFormulario(formulario) {
+                document.getElementById('form-login').style.display = formulario === 'login' ? 'block' : 'none';
+                document.getElementById('form-register').style.display = formulario === 'register' ? 'block' : 'none';
+                document.getElementById('modal-auth').style.display = 'flex';
+            }
+    
+            function cerrarModal() {
+                document.getElementById('modal-auth').style.display = 'none';
+                document.getElementById('modal-seleccion').style.display = 'none';
+                document.getElementById('modal-pago').style.display = 'none';
+            }
+    
+            function iniciarCambioAutomaticoFondo() {
+                const fondos = [
+                    'imagenes/fondo1.jpeg',
+                    'imagenes/fondo2.jpeg',
+                    'imagenes/fondo3.jpeg'
+                ];
+                let indice = 0;
+                setInterval(() => {
+                    indice = (indice + 1) % fondos.length;
+                    document.body.style.backgroundImage = `url('${fondos[indice]}')`;
+                }, 5000);
+            }
+    
+            window.onload = function() {
+                iniciarCambioAutomaticoFondo();
+                mostrarFormulario('login');
+            };
+    
+            function comprarBoleto(eventId) {
+                currentEventId = eventId;
+                document.getElementById('modal-seleccion').style.display = 'flex';
+            }
+    
+            function seleccionarAsiento(seatElement) {
+                seatElement.classList.toggle('selected');
+            }
+    
+            function confirmarSeleccion() {
+                const selectedSeats = document.querySelectorAll('.seat.selected');
+                if (selectedSeats.length === 0) {
+                    alert('Por favor, selecciona al menos un asiento.');
+                    return;
+                }
+                document.getElementById('modal-seleccion').style.display = 'none';
+                document.getElementById('modal-pago').style.display = 'flex';
+            }
+    
+            function procesarPago() {
+                let metodoPago = document.getElementById('metodo-pago').value;
+                let numeroTarjeta = document.getElementById('numero-tarjeta').value;
+                const selectedSeats = document.querySelectorAll('.seat.selected');
+                const numBoletos = selectedSeats.length;
+    
+                if (numeroTarjeta.trim() === '') {
+                    alert('Por favor, ingresa un número de tarjeta válido.');
+                    return;
+                }
+    
+                if (numBoletos > 0 && currentEventId) {
+                    fetch('http://localhost:3000/comprar', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            id_evento: currentEventId,
+                            cantidad: numBoletos,
+                        }),
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Error HTTP: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            alert(`Pago realizado con éxito usando ${metodoPago}. Total: $${numBoletos * 1500}.00. Boletos restantes: ${data.evento.cant_boletos}`);
+                            document.getElementById('modal-pago').style.display = 'none';
+                            selectedSeats.forEach(seat => seat.classList.remove('selected'));
+    
+                            if (data.evento.cant_boletos <= 0) {
+                                alert('¡Agotado! No quedan boletos para este evento.');
+                                document.querySelectorAll(`button[onclick="comprarBoleto(${currentEventId})"]`)[0].disabled = true;
+                            }
+                        } else {
+                            alert(`Error: ${data.error}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al procesar el pago:', error);
+                        alert('Ocurrió un error al procesar el pago. Por favor, intenta de nuevo.');
+                    });
+                } else {
+                    alert('Por favor, selecciona al menos un asiento.');
+                }
+            }
+    
+            // Toggle Dropdown Menu
+            function toggleDropdown() {
+                const dropdown = document.getElementById('user-dropdown');
+                if (isAuthenticated) {
+                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                } else {
+                    mostrarFormulario('login');
+                }
+            }
+    
+            // Logout Function
+            function logout() {
+                isAuthenticated = false;
+                document.getElementById('user-dropdown').style.display = 'none';
+                alert('Has cerrado sesión.');
+            }
+    
+            // Handle Authentication (Login/Register)
+            async function manejarAutenticacion(tipo) {
+                if (tipo === 'login') {
+                    const correo = document.getElementById('login-correo').value.trim();
+                    const contrasena = document.getElementById('login-contrasena').value.trim();
+    
+                    if (!correo || !contrasena) {
+                        alert('Por favor, complete todos los campos.');
+                        return;
+                    }
+    
+                    try {
+                        const response = await fetch('http://localhost:3000/consultar-acceso', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ usuario: correo, contraseña: contrasena }),
+                        });
+    
+                        const result = await response.json();
+    
+                        if (result.success) {
+                            isAuthenticated = true;
+                            alert('Acceso concedido');
+                            setTimeout(() => {
+                                cerrarModal();
+                            }, 1000);
+                        } else {
+                            alert('Error al iniciar sesión: ' + (result.message || ''));
+                        }
+                    } catch (error) {
+                        console.error('Error al iniciar sesión:', error);
+                        alert('Error al iniciar sesión.');
+                    }
+                } else if (tipo === 'register') {
+                    const nombre = document.getElementById('register-nombre').value.trim();
+                    const correo = document.getElementById('register-correo').value.trim();
+                    const telefono = document.getElementById('register-telefono').value.trim();
+                    const contrasena = document.getElementById('register-contrasena').value.trim();
+    
+                    if (!nombre || !correo || !telefono || !contrasena) {
+                        alert('Por favor, complete todos los campos.');
+                        return;
+                    }
+    
+                    try {
+                        const response = await fetch('http://localhost:3000/crear-cuenta', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ nombre, correo, telefono, contrasena }),
+                        });
+    
+                        const result = await response.json();
+    
+                        if (result.success) {
+                            alert('Cuenta creada exitosamente');
+                            cerrarModal();
+                        } else {
+                            alert('Error al crear la cuenta: ' + (result.error || ''));
+                        }
+                    } catch (error) {
+                        console.error('Error al crear la cuenta:', error);
+                        alert('Error al crear la cuenta.');
+                    }
+                }
+            }
+    
+            document.addEventListener('DOMContentLoaded', function() {
+                const iconContainer = document.getElementById('icon-container');
+                if (iconContainer) {
+                    iconContainer.onclick = function() {
+                        toggleDropdown();
+                    };
+                }
+    
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                } else {
+                    console.error('No se pudo cargar la librería Lucide.');
+                }
+            });
+    
+            document.addEventListener('click', function(event) {
+                const dropdown = document.getElementById('user-dropdown');
+                const iconContainer = document.getElementById('icon-container');
+                if (!iconContainer.contains(event.target) && dropdown.style.display === 'block') {
+                    dropdown.style.display = 'none';
+                }
+            });
+    
+            function toggleMenu() {
+                const navMenu = document.getElementById('nav-menu');
+                navMenu.classList.toggle('active');
+            }
+        </script>
+    </head>
+    <body>
+        <!-- Resto de tu HTML sin cambios -->
+        <nav>
+            <div class="menu-icon" onclick="toggleMenu()">☰</div>
+            <ul id="nav-menu" class="nav-menu" style="display: none;">
+                <li><a href="#">Inicio</a></li>
+                <li><a href="#">Eventos</a></li>
+                <li><a href="#" onclick="toggleDropdown()">Perfil</a></li>
+                <li><a href="#" onclick="logout()">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+        <header>
+            <div id="icon-container" onclick="mostrarFormulario('login')">
+                <i data-lucide="user" class="icon-login"></i>
+                <div id="user-dropdown" class="dropdown-menu" style="display: none;">
+                    <a href="#" class="dropdown-item">Cuenta Inicio</a>
+                    <a href="#" class="dropdown-item">Perfil</a>
+                    <a href="#" class="dropdown-item">Historial De Pedidos</a>
+                    <a href="#" class="dropdown-item">Liberta Direcciones</a>
+                    <a href="#" class="dropdown-item">Métodos De Pago</a>
+                    <a href="#" class="dropdown-item" onclick="logout()">Desconectar</a>
+                </div>
+            </div>
+            <h1>Compra tus boletos para eventos sociales</h1>
+            <img src="imagenes/banner.jpeg" alt="Banner de Evento" id="banner-img">
+        </header>
+    
+        <div id="modal-auth">
+            <div class="modal-content">
+                <span class="close-modal" onclick="cerrarModal()">×</span>
+                <div id="form-login" class="form-container">
+                    <h2>Iniciar Sesión</h2>
+                    <input type="text" id="login-correo" placeholder="Correo">
+                    <input type="password" id="login-contrasena" placeholder="Contraseña">
+                    <button onclick="manejarAutenticacion('login')">Iniciar Sesión</button>
+                    <span class="toggle-link" onclick="mostrarFormulario('register')">¿No tienes una cuenta? Crea una aquí</span>
+                </div>
+                <div id="form-register" class="form-container" style="display:none;">
+                    <h2>Crear Cuenta</h2>
+                    <input type="text" id="register-nombre" placeholder="Nombre">
+                    <input type="text" id="register-correo" placeholder="Correo">
+                    <input type="number" id="register-telefono" placeholder="Teléfono">
+                    <input type="password" id="register-contrasena" placeholder="Contraseña">
+                    <button onclick="manejarAutenticacion('register')">Crear Cuenta</button>
+                    <span class="toggle-link" onclick="mostrarFormulario('login')">¿Ya tienes una cuenta? Inicia sesión aquí</span>
+                </div>
+            </div>
+        </div>
+    
+        <div id="modal-seleccion">
+            <div class="modal-content">
+                <span class="close-modal" onclick="cerrarModal()">×</span>
+                <h2>Selecciona tu asiento</h2>
+                <div class="seat-grid" id="seat-grid">
+                    <script>
+                        for (let i = 1; i <= 40; i++) {
+                            document.write(`<div class="seat" onclick="seleccionarAsiento(this)">${i}</div>`);
+                        }
+                    </script>
+                </div>
+                <p>Costo por persona: $1,500.00</p>
+                <button onclick="confirmarSeleccion()">Confirmar Selección</button>
+            </div>
+        </div>
+    
+        <div id="modal-pago">
+            <div class="modal-content">
+                <span class="close-modal" onclick="cerrarModal()">×</span>
+                <h2>Selecciona tu forma de pago</h2>
+                <select id="metodo-pago">
+                    <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                    <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                </select>
+                <input type="text" id="numero-tarjeta" placeholder="Número de Tarjeta">
+                <button onclick="procesarPago()">Pagar</button>
+            </div>
+        </div>
+    
+        <section id="eventos">
+            <h2>Próximos Eventos</h2>
+            <div class="evento">
+                <img src="imagenes/evento1.jpeg" alt="Evento 1" class="evento-img">
+                <h3>Concierto en Vivo</h3>
+                <p>Fecha: 10 de marzo, 2025</p>
+                <button onclick="comprarBoleto(1)">Comprar Boleto</button>
+            </div>
+            <div class="evento">
+                <img src="imagenes/evento2.jpeg" alt="Evento 2" class="evento-img">
+                <h3>Obra de Teatro</h3>
+                <p>Fecha: 15 de abril, 2025</p>
+                <button onclick="comprarBoleto(2)">Comprar Boleto</button>
+            </div>
+            <div class="evento">
+                <img src="imagenes/evento3.jpeg" alt="Evento 3" class="evento-img">
+                <h3>Concierto Rich-Mafia</h3>
+                <p>Fecha: 1 de marzo, 2025</p>
+                <button onclick="comprarBoleto(3)" id="pagar">Comprar Boleto</button>
+            </div>
+        </section>
+    
+        <script>
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        </script>
+    </body>
+    </html>
+</body>
+</html>
